@@ -39,6 +39,7 @@ public class LikeServiceImpl implements LikeService {
           //Redis Updated here
           String key="post:"+postId+":virality_score";
           redisService.increment(key,20);
+          redisService.updateLeaderboard(postId, redisService.get(key));
           likeRepository.save(newLike);
           return new LikeResponse(postId, likeRepository.countByPostId(newLike.getPostId()));
 

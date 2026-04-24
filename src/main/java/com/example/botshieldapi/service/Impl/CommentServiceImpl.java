@@ -60,20 +60,21 @@ public class CommentServiceImpl implements CommentService {
             throw new RuntimeException("Max depth exceeded");
         }
 
-        if(botId!=null && parent!=null && parent.getUserId()!=null){
-
-            Long targetUserId=parent.getUserId();
-
-            String cooldownKey="cooldown:bot_"+botId+":user_"+targetUserId;
-            if(redisService.hasKey(cooldownKey)){
-                throw new RuntimeException("Bot is in cooldown");
-            }
-
+        if(botId!=null ){
             String countKey="post:"+postId+":bot_reply_count";
             long count=redisService.get(countKey);
             if(count>=100){
                 throw new RuntimeException("Bot reply limit reached for this post");
             }
+            if(parent!=null && parent.getUserId()!=null) {
+                Long targetUserId = parent.getUserId();
+                String cooldownKey = "cooldown:bot_"+botId+":user_"+targetUserId;
+                if (redisService.hasKey(cooldownKey)) {
+                    throw new RuntimeException("Bot is in cooldown");
+                }
+            }
+
+
         }
 
         Comment comment=new Comment();
@@ -93,7 +94,10 @@ public class CommentServiceImpl implements CommentService {
             redisService.increment(viralityKey,50);
         }else{
             redisService.increment(viralityKey,1);
+
             redisService.increment("post:"+postId+":bot_reply_count",1);
+            redisService.updateLeaderboard(postId, redisService.get(viralityKey));
+
 
             if(parent!=null && parent.getUserId()!=null){
                 String cooldownKey="cooldown:bot_"+botId+":user_"+parent.getUserId();

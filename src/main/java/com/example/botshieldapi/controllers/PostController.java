@@ -46,4 +46,8 @@ public class PostController {
     public ResponseEntity<?> getVirality(@PathVariable Long postId) {
         return ResponseEntity.ok(redisService.get("post:"+postId+":virality_score"));
     }
+    @GetMapping("/leaderboard")
+    public ResponseEntity<?> getLeaderboard(@RequestParam(defaultValue = "10") int limit) {
+        return ResponseEntity.ok(redisService.getTopPosts(limit));
+    }
 }
