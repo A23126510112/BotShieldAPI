@@ -24,7 +24,7 @@ public class PostController {
         return ResponseEntity.ok(postService.postPost(request));
     }
 
-    @PostMapping("/{postId}/comments")
+    @PostMapping("/{postId}/comment")
     public ResponseEntity<?> addComment(@PathVariable Long postId,  @RequestBody CommentRequest comment) {
         return ResponseEntity.ok(commentService.commentPost(postId,comment));
     }
