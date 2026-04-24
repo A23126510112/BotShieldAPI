@@ -1,10 +1,12 @@
 package com.example.botshieldapi.service;
 
+import com.example.botshieldapi.dto.response.LeaderboardResponse;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
 
@@ -32,8 +34,8 @@ public class RedisService {
         redisTemplate.opsForZSet()
                 .incrementScore("post:leaderboard", postId.toString(), score);
     }
-    public Set<ZSetOperations.TypedTuple<String>> getTopPosts(int limit) {
-        return redisTemplate.opsForZSet()
-                .reverseRangeWithScores("post:leaderboard", 0, limit - 1);
+    public List<LeaderboardResponse> getTopPosts(int limit) {
+        Set<ZSetOperations.TypedTuple<String>> result = redisTemplate.opsForZSet().reverseRangeWithScores("post:leaderboard",0,limit-1);
+        return result.stream().map(item -> new LeaderboardResponse(Long.parseLong(item.getValue()),item.getScore())).toList();
     }
 }
